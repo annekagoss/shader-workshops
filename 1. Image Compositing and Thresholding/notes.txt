@@ -1,0 +1,14 @@
+- Kodelife link
+- Show files in github
+- Message Steve on Slack
+- Table of contents
+
+0. Import image
+1. Thresholding gradients
+2. Threshold the green channel of an image
+3. Smoothstep gradients
+4. Apply smoothstep to the green channel of an image
+6. Composite the foreground over the image
+    a. normal
+    b. screen
+    c. multiply

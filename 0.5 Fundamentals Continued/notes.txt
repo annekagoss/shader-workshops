@@ -1,0 +1,46 @@
+0. Hello world
+    - overview of code structure
+        - main function
+        - gl_FragCoord
+        - gl_FragColor
+        - preprocessor directives
+        - uniforms
+    - create various colors
+    - map colors to mouse
+    - mix two colors based on mouse position
+
+1. Gradients
+    - horizontal linear gradient
+    - vertical linear gradient
+    - diagonal linear gradient
+    - exponential gradient
+    - combining gradients with blending modes
+        - add
+        - subtract
+        - multiply
+        - divide
+        - lighter
+        - darker
+        - interpolate
+
+2. Shaping Functions
+    - threshold X
+    - threshold Y
+    - smooth interpolate X
+    - smooth interpolate Y
+
+3. Waves
+    - sine/cosine
+    - sawtooth
+    - square
+    - map to polar
+
+4. Image Manipulation
+    - read a sampler
+    - grayscale
+    - contrast
+    - hueshift
+    - repeat
+    - distort
+    - hueshift
+    - audio reactive distortion

@@ -1,0 +1,36 @@
+START
+0. Ask for challenges!
+1, Use the Book of Shaders preset
+2. Set the resolution to 1280 x 1280
+
+Chapter 1: Circle
+1. Make a uniform float for the circle radius
+2, Find the distance of the pixel from the center
+3. Subtract the radius from a gradient distance to form a distance field from -Infinity to Infinity
+4. Threshold this gradient field at 0
+
+Chapter 2: Rectangle
+1. Make a uniform vec2 float for the rectangle size
+2. Show simple rectangle function
+3. Find distance from coordinate to rectangle edge
+4. Determine if coordiante is inside or not with "max"
+5. Find the distance that outside pixels are from the edge
+6. Find the distance that inside pixels are from the edge
+7. Add them to form a gradient distance field from -Infinity to Infinity
+8. Threshold this gradient field at 0
+
+Chapter 3: Morph
+1. Use "mix" to interpolate between the two distance fields with the mouse
+2. Threshold the combined gradient at 0
+3, Make a uniform clock
+4. Plug in time to the interpolator
+5. Modulo the time
+6. Sine the time
+7. Add easing with smoothstep
+
+Chapter 4: Loop and Blend
+1. Create a color pallete based on a Klee painting
+2. Create multiple copies of each morphed shape
+3. Blend the shapes together using addition
+4. Adjust the size of each shape so they don't cover each other
+5. Blend the shapes together using "mix"
