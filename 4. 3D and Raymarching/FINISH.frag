@@ -8,8 +8,8 @@ precision mediump float;
 #define MAX_DIST 32.0
 #define MAX_BOUNCES 8
 
-#define CAMERA_POSITION vec3(0.0, 0.0, 0.0)
-#define CAMERA_TARGET vec3(0.0, 0.0, 1.0)
+#define CAMERA_POSITION vec3(0.0, 0.0, 1.0)
+#define CAMERA_TARGET vec3(0.0, 0.0, 0.0)
 
 #define BACKGROUND_COLOR vec3(0.0, 0.0, 1.0)
 #define LIGHT_POS_A vec3(4.0)
@@ -60,14 +60,12 @@ float sphereSDF(vec3 pos, float radius) { return length(pos) - radius; }
 
 float primitiveCombinationSDF(vec3 pos) {
   float ground = boxSDF(pos + vec3(0.0, 1.5, 0.0), vec3(4.0, 1.0, 4.0));
-  pos += CAMERA_TARGET;
   pos.xz *= rot(u_time * 0.5);
   float sphere = sphereSDF(pos, 0.3);
   float cube = boxSDF(pos, vec3(0.3));
-  float cube1 = boxSDF(pos, vec3(0.15, 0.15, 0.5));
   return min(
       ground,
-      max(-cube1, sphere)); // Addition and subtraction primitive combinations
+      max(-cube, sphere)); // Addition and subtraction primitive combinations
 }
 
 float infiniteCubesSDF(vec3 pos) {
@@ -153,8 +151,7 @@ intersect rayMarch(vec3 rayOrigin, vec3 rayDirection) {
 // source. If the ray does not collide with anything on the way, the point is
 // not in shadow.
 float shadow(vec3 rayOrigin, vec3 rayDirection) {
-  float lightReceived = 0.0;
-  float dist = 0.001;
+  float dist = EPSILON;
   float maxDist = 12.0;
   for (int i = 0; i < 30; i++) {
     float scene = sceneSDF(rayOrigin + rayDirection * dist);
@@ -163,8 +160,8 @@ float shadow(vec3 rayOrigin, vec3 rayDirection) {
     dist += scene * 0.25;
   }
   if (dist > maxDist)
-    lightReceived = 1.0;
-  return lightReceived;
+    return 1.0;
+  return 0.0;
 }
 
 // Lighting
@@ -207,13 +204,15 @@ vec3 applyLighting(vec3 position, vec3 normal, intersect i) {
 void main() {
   // Transformation matrices make it easy to point the camera at a given point,
   // in this case determined by a mouse drag interaction.
-  vec3 cameraTarget = vec3(u_mouse.x * -2.0 + 1.0, u_mouse.y * 2.0 - 1.0, 1.0);
+  vec3 cameraTarget = vec3(u_mouse.x * -2.0 + 1.0, u_mouse.y * 2.0 - 1.0, 0.0);
   cameraMatrix = initCameraMatrix(CAMERA_POSITION, cameraTarget, 0.0);
 
   // Point the ray so it will give us a distance for the current pixel
+  // This is similar to out previous st coordinates, except mapped from -1 to 1
+  // instead of 0 to 1
   vec2 pixelPosition =
       (2.0 * gl_FragCoord.xy - u_resolution.xy) / u_resolution.y;
-  vec3 rayDirection = normalize(cameraMatrix * vec3(pixelPosition, -1.3));
+  vec3 rayDirection = normalize(cameraMatrix * vec3(pixelPosition, 1.0));
 
   intersect i = rayMarch(CAMERA_POSITION, rayDirection);
   vec3 position = CAMERA_POSITION + rayDirection * i.dist;

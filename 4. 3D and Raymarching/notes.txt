@@ -1,0 +1,41 @@
+1. Explain process and draw out raymarching
+
+2. Find normalized pixel position from -1 to 1
+
+3. Define camera position, camera target, and max distance
+
+4. Create camera matrix
+
+5. Create ray direction
+
+6. raymarching function
+
+7. sphere sdf
+
+8. Add box sdf function
+
+9. Add ground
+
+10. Subtract cube from sphere
+
+11. copy in colors
+
+12. explain lighitng with dot product
+
+13. calculate position and normal from intersect
+
+14. rotate object
+
+15. write phong lighting function
+
+16. write shadow function
+
+17. create infinite cubes
+
+18. create separate lighting function
+
+19. add undulation
+
+20. add mouse control
+
+21. define max bounces

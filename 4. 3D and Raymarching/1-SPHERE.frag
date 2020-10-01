@@ -6,8 +6,8 @@ precision mediump float;
 
 #define MAX_DIST 32.0
 
-#define CAMERA_POSITION vec3(0.0, 0.0, 0.0)
-#define CAMERA_TARGET vec3(0.0, 0.0, 1.0)
+#define CAMERA_POSITION vec3(0.0, 0.0, 1.0)
+#define CAMERA_TARGET vec3(0.0, 0.0, 0.0)
 
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
@@ -40,10 +40,7 @@ mat3 cameraMatrix = initCameraMatrix(CAMERA_POSITION, CAMERA_TARGET, 0.0);
 
 float sphereSDF(vec3 pos, float radius) { return length(pos) - radius; }
 
-float primitiveCombinationSDF(vec3 pos) {
-  pos += CAMERA_TARGET;
-  return sphereSDF(pos, 0.5);
-}
+float primitiveCombinationSDF(vec3 pos) { return sphereSDF(pos, 0.3); }
 
 float sceneSDF(vec3 pos) { return primitiveCombinationSDF(pos); }
 
@@ -80,9 +77,11 @@ intersect rayMarch(vec3 rayOrigin, vec3 rayDirection) {
 
 void main() {
   // Point the ray so it will give us a distance for the current pixel
+  // This is similar to out previous st coordinates, except mapped from -1 to 1
+  // instead of 0 to 1
   vec2 pixelPosition =
       (2.0 * gl_FragCoord.xy - u_resolution.xy) / u_resolution.y;
-  vec3 rayDirection = normalize(cameraMatrix * vec3(pixelPosition, -1.3));
+  vec3 rayDirection = normalize(cameraMatrix * vec3(pixelPosition, 1.0));
   intersect i = rayMarch(CAMERA_POSITION, rayDirection);
 
   vec3 color = vec3(0.0);

@@ -6,8 +6,8 @@ precision mediump float;
 
 #define MAX_DIST 32.0
 
-#define CAMERA_POSITION vec3(0.0, 0.0, 0.0)
-#define CAMERA_TARGET vec3(0.0, 0.0, 1.0)
+#define CAMERA_POSITION vec3(0.0, 0.0, 1.0)
+#define CAMERA_TARGET vec3(0.0, 0.0, 0.0)
 
 #define rot(a) mat2(cos(a), sin(a), -sin(a), cos(a))
 
@@ -50,14 +50,12 @@ float boxSDF(vec3 pos, vec3 size) {
 
 float primitiveCombinationSDF(vec3 pos) {
   float ground = boxSDF(pos + vec3(0.0, 1.5, 0.0), vec3(4.0, 1.0, 4.0));
-  pos += CAMERA_TARGET;
   pos.xz *= rot(u_time * 0.5);
   float sphere = sphereSDF(pos, 0.3);
-  float cube = boxSDF(pos, vec3(0.3));
-  float cube1 = boxSDF(pos, vec3(0.15, 0.15, 0.5));
+  float cube = boxSDF(pos, vec3(0.15, 0.15, 0.5));
   return min(
       ground,
-      max(-cube1, sphere)); // Addition and subtraction primitive combinations
+      max(-cube, sphere)); // Addition and subtraction primitive combinations
 }
 
 float sceneSDF(vec3 pos) { return primitiveCombinationSDF(pos); }
@@ -95,9 +93,11 @@ intersect rayMarch(vec3 rayOrigin, vec3 rayDirection) {
 
 void main() {
   // Point the ray so it will give us a distance for the current pixel
+  // This is similar to out previous st coordinates, except mapped from -1 to 1
+  // instead of 0 to 1
   vec2 pixelPosition =
       (2.0 * gl_FragCoord.xy - u_resolution.xy) / u_resolution.y;
-  vec3 rayDirection = normalize(cameraMatrix * vec3(pixelPosition, -1.3));
+  vec3 rayDirection = normalize(cameraMatrix * vec3(pixelPosition, 1.0));
   intersect i = rayMarch(CAMERA_POSITION, rayDirection);
 
   vec3 color = vec3(0.0);

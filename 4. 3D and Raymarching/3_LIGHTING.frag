@@ -6,8 +6,8 @@ precision mediump float;
 
 #define MAX_DIST 32.0
 
-#define CAMERA_POSITION vec3(0.0, 0.0, 0.0)
-#define CAMERA_TARGET vec3(0.0, 0.0, 1.0)
+#define CAMERA_POSITION vec3(0.0, 0.0, 1.0)
+#define CAMERA_TARGET vec3(0.0, 0.0, 0.0)
 
 #define BACKGROUND_COLOR vec3(0.0, 0.0, 1.0)
 #define LIGHT_POS_A vec3(4.0)
@@ -56,21 +56,19 @@ float boxSDF(vec3 pos, vec3 size) {
 
 float primitiveCombinationSDF(vec3 pos) {
   float ground = boxSDF(pos + vec3(0.0, 1.5, 0.0), vec3(4.0, 1.0, 4.0));
-  pos += CAMERA_TARGET;
   pos.xz *= rot(u_time * 0.5);
   float sphere = sphereSDF(pos, 0.3);
-  float cube = boxSDF(pos, vec3(0.3));
-  float cube1 = boxSDF(pos, vec3(0.15, 0.15, 0.5));
+  float cube = boxSDF(pos, vec3(0.15, 0.15, 0.5));
   return min(
       ground,
-      max(-cube1, sphere)); // Addition and subtraction primitive combinations
+      max(-cube, sphere)); // Addition and subtraction primitive combinations
 }
 
 float sceneSDF(vec3 pos) { return primitiveCombinationSDF(pos); }
 
 // Numerical normal calculation
 // =========================================================
-// Sample four points on the surface that surround the point in question
+// Sample six points on the surface that surround the point in question
 // and find their directional derivatives.
 // Reference: https://www.iquilezles.org/www/articles/normalsSDF/normalsSDF.htm
 vec3 calcNormal(vec3 position) {
@@ -127,19 +125,12 @@ vec3 calcLightColor(vec3 lightPosition, vec3 color, vec3 position,
 vec3 applyPhongLighting(vec3 position, vec3 normal, intersect i) {
   if (!i.hit)
     return BACKGROUND_COLOR;
-  vec3 color = BACKGROUND_COLOR * 0.5;
+  vec3 color = BACKGROUND_COLOR * 0.5; // Ambient light
 
   color += calcLightColor(LIGHT_POS_A, LIGHT_COLOR_A, position, normal);
   color += calcLightColor(LIGHT_POS_B, LIGHT_COLOR_B, position, normal);
 
   return color;
-}
-
-// For this scene we're faking the lighting entirely.
-// The brightness of hte pixel is based entirely off of distance
-// from the camera and number or boun
-vec3 applyReflectedLighting(intersect i) {
-  return vec3(i.dist / MAX_DIST * 1.1);
 }
 
 vec3 applyLighting(vec3 position, vec3 normal, intersect i) {
@@ -148,9 +139,11 @@ vec3 applyLighting(vec3 position, vec3 normal, intersect i) {
 
 void main() {
   // Point the ray so it will give us a distance for the current pixel
+  // This is similar to out previous st coordinates, except mapped from -1 to 1
+  // instead of 0 to 1
   vec2 pixelPosition =
       (2.0 * gl_FragCoord.xy - u_resolution.xy) / u_resolution.y;
-  vec3 rayDirection = normalize(cameraMatrix * vec3(pixelPosition, -1.3));
+  vec3 rayDirection = normalize(cameraMatrix * vec3(pixelPosition, 1.0));
   intersect i = rayMarch(CAMERA_POSITION, rayDirection);
 
   vec3 position = CAMERA_POSITION + rayDirection * i.dist;
